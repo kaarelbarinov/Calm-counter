@@ -3,42 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pocket AOI MVP Interface</title>
+    <title>POCKET AOI MVP</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
+    <!-- HEADER -->
+    <header class="app-header">
         <h1>POCKET AOI</h1>
     </header>
-    <div class="container">
-        <aside class="left-sidebar">
-            <h2>Tool Selector</h2>
-            <ul>
-                <li>Tool 1</li>
-                <li>Tool 2</li>
-                <li>Tool 3</li>
-            </ul>
-            <h2>Filters</h2>
-            <ul>
-                <li>Filter 1</li>
-                <li>Filter 2</li>
-            </ul>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-container">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar left-sidebar">
+            
+            <!-- TOOLS SECTION (COLLAPSIBLE) -->
+            <div class="collapsible-section">
+                <h2 class="section-header" onclick="toggleSection(this)">
+                    <span class="toggle-icon">▼</span> TOOLS
+                </h2>
+                <div class="section-content" style="display: block;">
+                    <div class="control-group">
+                        <label>Select Tool:</label>
+                        <select id="toolSelector">
+                            <option value="presence">Presence Counter</option>
+                            <option value="blob">Blob Detection</option>
+                        </select>
+                    </div>
+
+                    <!-- TOOL LIMITS - SLIDERS -->
+                    <div id="toolLimits" class="tool-limits">
+                        <div class="control-group">
+                            <label>Pixel Threshold:</label>
+                            <input type="range" id="presenceLimit" min="1" max="10000" value="100" class="slider">
+                            <span id="presenceLimitDisplay" class="slider-value">100 px</span>
+                        </div>
+                        <div class="control-group">
+                            <label>Min Blob Size:</label>
+                            <input type="range" id="blobMinSize" min="1" max="500" value="80" class="slider">
+                            <span id="blobMinSizeDisplay" class="slider-value">80 px</span>
+                        </div>
+                        <div class="control-group">
+                            <label>Blob Count Limit:</label>
+                            <input type="range" id="blobCountLimit" min="1" max="100" value="1" class="slider">
+                            <span id="blobCountLimitDisplay" class="slider-value">1 blob</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTERS SECTION (COLLAPSIBLE) -->
+            <div class="collapsible-section">
+                <h2 class="section-header" onclick="toggleSection(this)">
+                    <span class="toggle-icon">▼</span> FILTERS
+                </h2>
+                <div class="section-content">
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="thresholdFilter" checked />
+                            Threshold
+                        </label>
+                        <input type="range" id="thresholdValue" min="0" max="255" value="128" class="slider">
+                        <span id="thresholdDisplay" class="slider-value">Value: 128</span>
+                    </div>
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="morphFilter" />
+                            Morphology (Dilate)
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="invertFilter" />
+                            Invert
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI SHAPE SECTION (COLLAPSIBLE) -->
+            <div class="collapsible-section">
+                <h2 class="section-header" onclick="toggleSection(this)">
+                    <span class="toggle-icon">▼</span> ROI SHAPE
+                </h2>
+                <div class="section-content">
+                    <div class="control-group">
+                        <label>
+                            <input type="radio" name="roiShape" value="rect" checked />
+                            Rectangle
+                        </label>
+                        <label>
+                            <input type="radio" name="roiShape" value="circle" />
+                            Circle
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI SIZE SLIDERS -->
+            <div class="collapsible-section">
+                <h2 class="section-header" onclick="toggleSection(this)">
+                    <span class="toggle-icon">▼</span> ROI SIZE
+                </h2>
+                <div class="section-content">
+                    <div class="control-group">
+                        <label>Width:</label>
+                        <input type="range" id="roiWidth" min="60" max="600" value="220" class="slider">
+                        <span id="roiWidthDisplay" class="slider-value">220 px</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Height:</label>
+                        <input type="range" id="roiHeight" min="60" max="600" value="160" class="slider">
+                        <span id="roiHeightDisplay" class="slider-value">160 px</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESET STATS BUTTON -->
+            <button id="resetStatsBtn" class="btn-reset">RESET STATS</button>
         </aside>
-        <main class="central-viewport">
-            <div class="camera-feed">
-                <p>Camera Feed Here</p>
-                <div class="roi-box"></div>
+
+        <!-- CENTER VIEWPORT -->
+        <main class="viewport">
+            <div id="cameraViewport" class="camera-viewport">
+                <video id="cameraVideo" autoplay playsinline muted></video>
+                <div id="roiBox" class="roi-box">
+                    <div class="resize-handle tl"></div>
+                    <div class="resize-handle tr"></div>
+                    <div class="resize-handle bl"></div>
+                    <div class="resize-handle br"></div>
+                </div>
             </div>
         </main>
-        <aside class="right-sidebar">
-            <h2>Processed Image Preview</h2>
-            <img src="processed-image.jpg" alt="Processed Image">
-            <h2>Statistics</h2>
-            <p>Statistics data here.</p>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="sidebar right-sidebar">
+            <!-- INSPECT BUTTON -->
+            <button id="inspectBtn" class="btn-inspect">INSPECT</button>
+
+            <h2>PROCESSED IMAGE</h2>
+            <div class="canvas-container">
+                <canvas id="processedCanvas" width="300" height="225"></canvas>
+            </div>
+
+            <h2>INSPECTION RESULT (LIVE)</h2>
+            <div id="inspectionResult" class="inspection-result">
+                <div class="result-item">
+                    <span>Tool:</span>
+                    <span id="resultTool">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Value:</span>
+                    <span id="resultValue" class="result-live-value">0</span>
+                </div>
+                <div class="result-item">
+                    <span>Limit:</span>
+                    <span id="resultLimit">0</span>
+                </div>
+                <div class="result-item">
+                    <span>Status:</span>
+                    <span id="resultStatus" class="result-status-neutral">-</span>
+                </div>
+            </div>
+
+            <h2>STATISTICS</h2>
+            <div class="stat-box">
+                <div class="stat-item">
+                    <span>PASS:</span>
+                    <span id="statPass" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>FAIL:</span>
+                    <span id="statFail" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>FPY%:</span>
+                    <span id="statFpy" class="stat-value">0%</span>
+                </div>
+            </div>
         </aside>
     </div>
-    <footer>
-        <p>&copy; 2026 Pocket AOI. All rights reserved.</p>
-    </footer>
+
+    <script src="app.js"></script>
 </body>
 </html>
