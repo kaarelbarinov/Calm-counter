@@ -1,71 +1,44 @@
 <!DOCTYPE html>
-<html lang="et">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kaamera inspekteerimise API demo</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header class="app-header">
-      <h1>Kaamera inspekteerimine (Web API)</h1>
-      <button id="startCameraBtn" class="primary">Käivita kaamera</button>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket AOI MVP Interface</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>POCKET AOI</h1>
     </header>
-
-    <main class="layout">
-      <aside class="sidebar left-sidebar">
-        <details open>
-          <summary>Pilditöötlus tööriistad (filtrid)</summary>
-          <div class="section-content controls">
-            <label>
-              Halltoon
-              <input id="grayscaleToggle" type="checkbox" />
-            </label>
-            <label>
-              Kontrastsus
-              <input id="contrastRange" type="range" min="0.5" max="2" step="0.1" value="1" />
-            </label>
-            <label>
-              Lävi (threshold)
-              <input id="thresholdRange" type="range" min="0" max="255" step="1" value="0" />
-            </label>
-          </div>
-        </details>
-
-        <details open>
-          <summary>Inspektsiooni tööriistad (blob tool)</summary>
-          <div class="section-content controls">
-            <label>
-              Blob tööriist aktiivne
-              <input id="blobToggle" type="checkbox" checked />
-            </label>
-            <label>
-              Min blob suurus (px)
-              <input id="blobMinSize" type="number" min="1" value="80" />
-            </label>
-            <div id="blobResult" class="status">Blobid: -</div>
-          </div>
-        </details>
-      </aside>
-
-      <section class="center-screen">
-        <div id="cameraViewport" class="camera-viewport">
-          <video id="cameraVideo" autoplay playsinline muted></video>
-          <div id="roiBox" class="roi-box" aria-label="ROI ala" role="region">
-            <div class="resize-handle top-left" data-handle="top-left"></div>
-            <div class="resize-handle top-right" data-handle="top-right"></div>
-            <div class="resize-handle bottom-left" data-handle="bottom-left"></div>
-            <div class="resize-handle bottom-right" data-handle="bottom-right"></div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="sidebar right-sidebar">
-        <h2>Töödeldud ROI pilt</h2>
-        <canvas id="processedCanvas" width="320" height="240"></canvas>
-      </aside>
-    </main>
-
-    <script src="app.js"></script>
-  </body>
+    <div class="container">
+        <aside class="left-sidebar">
+            <h2>Tool Selector</h2>
+            <ul>
+                <li>Tool 1</li>
+                <li>Tool 2</li>
+                <li>Tool 3</li>
+            </ul>
+            <h2>Filters</h2>
+            <ul>
+                <li>Filter 1</li>
+                <li>Filter 2</li>
+            </ul>
+        </aside>
+        <main class="central-viewport">
+            <div class="camera-feed">
+                <p>Camera Feed Here</p>
+                <div class="roi-box"></div>
+            </div>
+        </main>
+        <aside class="right-sidebar">
+            <h2>Processed Image Preview</h2>
+            <img src="processed-image.jpg" alt="Processed Image">
+            <h2>Statistics</h2>
+            <p>Statistics data here.</p>
+        </aside>
+    </div>
+    <footer>
+        <p>&copy; 2026 Pocket AOI. All rights reserved.</p>
+    </footer>
+</body>
 </html>
