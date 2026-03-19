@@ -89,7 +89,7 @@ body {
 
 .section-content {
     padding: 10px 0;
-    max-height: 500px;
+    max-height: 1000px;
     overflow: hidden;
     transition: max-height 0.3s ease;
 }
@@ -97,6 +97,23 @@ body {
 .section-content.collapsed {
     max-height: 0;
     padding: 0;
+}
+
+/* SUBSECTION HEADERS */
+.subsection-header {
+    font-size: 0.85rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.section-divider {
+    border: none;
+    border-top: 1px solid #30363d;
+    margin: 12px 0;
 }
 
 /* CONTROLS */
@@ -156,6 +173,24 @@ body {
     border-radius: 4px;
     margin-top: 10px;
     border: 1px solid #30363d;
+}
+
+/* FILTER SECTIONS */
+.filter-section {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #30363d;
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.filter-controls {
+    padding-left: 24px;
+    margin-top: 8px;
 }
 
 /* ACTION BUTTONS */
@@ -286,14 +321,6 @@ body {
     border: 3px solid #30363d;
     border-radius: 6px;
     display: block;
-}
-
-#processedCanvas.pass {
-    border-color: #00ff00;
-}
-
-#processedCanvas.fail {
-    border-color: #ff0000;
 }
 
 /* INSPECTION RESULT */

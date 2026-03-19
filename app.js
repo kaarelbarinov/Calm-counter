@@ -4,7 +4,12 @@ const AppState = {
     selectedTool: 'presence',
     filters: { threshold: true, morph: false, invert: false },
     thresholdValue: 128,
-    toolLimits: { presenceLimit: 100, blobMinSize: 80, blobCountLimit: 1 },
+    toolLimits: { 
+        presenceLimit: 100, 
+        blobMinSize: 80, 
+        blobMinCount: 1,
+        blobMaxCount: 10
+    },
     stats: { pass: 0, fail: 0 },
     lastResult: { tool: '-', value: 0, limit: 0, passed: null },
     dragState: { isDragging: false, isResizing: false, handle: null, startX: 0, startY: 0, startRect: null },
@@ -21,15 +26,16 @@ const elements = {
     presenceLimitDisplay: document.getElementById('presenceLimitDisplay'),
     blobMinSize: document.getElementById('blobMinSize'),
     blobMinSizeDisplay: document.getElementById('blobMinSizeDisplay'),
-    blobCountLimit: document.getElementById('blobCountLimit'),
-    blobCountLimitDisplay: document.getElementById('blobCountLimitDisplay'),
-    roiWidth: document.getElementById('roiWidth'),
-    roiWidthDisplay: document.getElementById('roiWidthDisplay'),
-    roiHeight: document.getElementById('roiHeight'),
-    roiHeightDisplay: document.getElementById('roiHeightDisplay'),
+    blobMinCount: document.getElementById('blobMinCount'),
+    blobMinCountDisplay: document.getElementById('blobMinCountDisplay'),
+    blobMaxCount: document.getElementById('blobMaxCount'),
+    blobMaxCountDisplay: document.getElementById('blobMaxCountDisplay'),
+    presenceLimits: document.getElementById('presenceLimits'),
+    blobLimits: document.getElementById('blobLimits'),
     thresholdFilter: document.getElementById('thresholdFilter'),
     thresholdValue: document.getElementById('thresholdValue'),
     thresholdDisplay: document.getElementById('thresholdDisplay'),
+    thresholdControls: document.getElementById('thresholdControls'),
     morphFilter: document.getElementById('morphFilter'),
     invertFilter: document.getElementById('invertFilter'),
     roiShapeRadios: document.querySelectorAll('input[name="roiShape"]'),
@@ -46,11 +52,22 @@ const elements = {
 
 const ctx = elements.processedCanvas.getContext('2d', { willReadFrequently: true });
 
-// COLLAPSIBLE SECTIONS - ALL COLLAPSED ON START
+// COLLAPSIBLE SECTIONS
 function toggleSection(header) {
     header.classList.toggle('collapsed');
     const content = header.nextElementSibling;
     content.classList.toggle('collapsed');
+}
+
+// UPDATE TOOL-SPECIFIC UI
+function updateToolUI() {
+    if (AppState.selectedTool === 'presence') {
+        elements.presenceLimits.style.display = 'block';
+        elements.blobLimits.style.display = 'none';
+    } else {
+        elements.presenceLimits.style.display = 'none';
+        elements.blobLimits.style.display = 'block';
+    }
 }
 
 // AUTO START CAMERA
@@ -259,7 +276,7 @@ function detectBlobs(imageData) {
     return blobs;
 }
 
-// DRAW EXACT BLOB SHAPES ON CANVAS
+// DRAW EXACT BLOB OUTLINES WITH CORRECT COLORS
 function drawBlobsOnCanvas(blobs, passed) {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = elements.processedCanvas.width;
@@ -271,24 +288,58 @@ function drawBlobsOnCanvas(blobs, passed) {
     blobs.forEach(blob => {
         if (blob.length === 0) return;
         
-        // Draw exact blob shape pixel by pixel
+        // Find blob contour points
+        const contourPoints = [];
+        
         blob.forEach(pixel => {
-            tempCtx.fillStyle = color;
-            tempCtx.globalAlpha = 0.5;
-            tempCtx.fillRect(pixel.x, pixel.y, 1, 1);
+            // Check if pixel is on the edge (has neighbor that's not white)
+            const idx = (pixel.y * elements.processedCanvas.width + pixel.x) * 4;
+            const data = tempCtx.getImageData(pixel.x - 1, pixel.y - 1, 3, 3).data;
+            
+            let isEdge = false;
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i] < 200) {
+                    isEdge = true;
+                    break;
+                }
+            }
+            
+            if (isEdge || pixel.x === Math.min(...blob.map(p => p.x)) || 
+                pixel.x === Math.max(...blob.map(p => p.x)) ||
+                pixel.y === Math.min(...blob.map(p => p.y)) ||
+                pixel.y === Math.max(...blob.map(p => p.y))) {
+                contourPoints.push(pixel);
+            }
         });
         
-        // Draw contour outline
-        tempCtx.globalAlpha = 1.0;
-        tempCtx.strokeStyle = color;
-        tempCtx.lineWidth = 1;
-        
-        const minX = Math.min(...blob.map(p => p.x));
-        const maxX = Math.max(...blob.map(p => p.x));
-        const minY = Math.min(...blob.map(p => p.y));
-        const maxY = Math.max(...blob.map(p => p.y));
-        
-        tempCtx.strokeRect(minX, minY, maxX - minX, maxY - minY);
+        // Draw blob outline
+        if (contourPoints.length > 0) {
+            // Draw contour line
+            tempCtx.strokeStyle = color;
+            tempCtx.lineWidth = 2;
+            tempCtx.beginPath();
+            
+            // Sort points to create continuous line (convex hull approximation)
+            const centerX = blob.reduce((sum, p) => sum + p.x, 0) / blob.length;
+            const centerY = blob.reduce((sum, p) => sum + p.y, 0) / blob.length;
+            
+            contourPoints.sort((a, b) => {
+                const angleA = Math.atan2(a.y - centerY, a.x - centerX);
+                const angleB = Math.atan2(b.y - centerY, b.x - centerX);
+                return angleA - angleB;
+            });
+            
+            contourPoints.forEach((point, index) => {
+                if (index === 0) {
+                    tempCtx.moveTo(point.x, point.y);
+                } else {
+                    tempCtx.lineTo(point.x, point.y);
+                }
+            });
+            
+            tempCtx.closePath();
+            tempCtx.stroke();
+        }
     });
     
     ctx.drawImage(tempCanvas, 0, 0);
@@ -313,13 +364,14 @@ function runPresenceTool(imageData) {
 
 function runBlobTool(imageData) {
     const blobs = detectBlobs(imageData);
-    const countLimit = AppState.toolLimits.blobCountLimit;
-    const passed = blobs.length >= countLimit;
+    const minCount = AppState.toolLimits.blobMinCount;
+    const maxCount = AppState.toolLimits.blobMaxCount;
+    const passed = blobs.length >= minCount && blobs.length <= maxCount;
     
     return { 
         tool: 'Blob Detection',
         value: blobs.length, 
-        limit: countLimit,
+        limit: `${minCount}-${maxCount}`,
         passed: passed,
         blobs: blobs
     };
@@ -358,18 +410,8 @@ function processFrames() {
         drawBlobsOnCanvas(result.blobs, result.passed);
     }
     
-    // Update canvas border color based on blob tool
-    if (AppState.selectedTool === 'blob') {
-        if (result.passed) {
-            elements.processedCanvas.classList.add('pass');
-            elements.processedCanvas.classList.remove('fail');
-        } else {
-            elements.processedCanvas.classList.add('fail');
-            elements.processedCanvas.classList.remove('pass');
-        }
-    } else {
-        elements.processedCanvas.classList.remove('pass', 'fail');
-    }
+    // Canvas border color removed for blob tool
+    elements.processedCanvas.classList.remove('pass', 'fail');
     
     requestAnimationFrame(processFrames);
 }
@@ -442,7 +484,10 @@ elements.roiBox.addEventListener('pointermove', onPointerMove);
 elements.roiBox.addEventListener('pointerup', onPointerUp);
 elements.roiBox.addEventListener('pointercancel', onPointerUp);
 
-elements.toolSelector.addEventListener('change', (e) => AppState.selectedTool = e.target.value);
+elements.toolSelector.addEventListener('change', (e) => {
+    AppState.selectedTool = e.target.value;
+    updateToolUI();
+});
 
 elements.presenceLimit.addEventListener('input', (e) => {
     AppState.toolLimits.presenceLimit = parseInt(e.target.value);
@@ -454,24 +499,21 @@ elements.blobMinSize.addEventListener('input', (e) => {
     elements.blobMinSizeDisplay.textContent = e.target.value + ' px';
 });
 
-elements.blobCountLimit.addEventListener('input', (e) => {
-    AppState.toolLimits.blobCountLimit = parseInt(e.target.value);
-    elements.blobCountLimitDisplay.textContent = e.target.value + ' blob' + (e.target.value > 1 ? 's' : '');
+elements.blobMinCount.addEventListener('input', (e) => {
+    AppState.toolLimits.blobMinCount = parseInt(e.target.value);
+    elements.blobMinCountDisplay.textContent = e.target.value + ' blob' + (e.target.value > 1 ? 's' : '');
 });
 
-elements.roiWidth.addEventListener('input', (e) => {
-    AppState.roi.width = parseInt(e.target.value);
-    elements.roiWidthDisplay.textContent = e.target.value + ' px';
-    applyROI();
+elements.blobMaxCount.addEventListener('input', (e) => {
+    AppState.toolLimits.blobMaxCount = parseInt(e.target.value);
+    elements.blobMaxCountDisplay.textContent = e.target.value + ' blob' + (e.target.value > 1 ? 's' : '');
 });
 
-elements.roiHeight.addEventListener('input', (e) => {
-    AppState.roi.height = parseInt(e.target.value);
-    elements.roiHeightDisplay.textContent = e.target.value + ' px';
-    applyROI();
+elements.thresholdFilter.addEventListener('change', (e) => {
+    AppState.filters.threshold = e.target.checked;
+    elements.thresholdControls.style.display = e.target.checked ? 'block' : 'none';
 });
 
-elements.thresholdFilter.addEventListener('change', (e) => AppState.filters.threshold = e.target.checked);
 elements.thresholdValue.addEventListener('input', (e) => {
     AppState.thresholdValue = parseInt(e.target.value);
     elements.thresholdDisplay.textContent = 'Value: ' + e.target.value;
@@ -494,3 +536,9 @@ elements.resetStatsBtn.addEventListener('click', resetStats);
 startCamera();
 centerROI();
 updateStatsDisplay();
+updateToolUI();
+// Ensure all sections are collapsed on load
+document.querySelectorAll('.collapsible-section').forEach(section => {
+    section.classList.add('collapsed');
+    section.querySelector('.section-content').classList.add('collapsed');
+});

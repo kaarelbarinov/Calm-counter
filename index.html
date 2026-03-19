@@ -31,62 +31,37 @@
                         </select>
                     </div>
 
-                    <!-- TOOL LIMITS - SLIDERS -->
-                    <div id="toolLimits" class="tool-limits">
+                    <!-- PRESENCE TOOL LIMITS -->
+                    <div id="presenceLimits" class="tool-limits">
                         <div class="control-group">
                             <label>Pixel Threshold:</label>
                             <input type="range" id="presenceLimit" min="1" max="10000" value="100" class="slider">
                             <span id="presenceLimitDisplay" class="slider-value">100 px</span>
                         </div>
+                    </div>
+
+                    <!-- BLOB TOOL LIMITS -->
+                    <div id="blobLimits" class="tool-limits" style="display: none;">
                         <div class="control-group">
                             <label>Min Blob Size:</label>
                             <input type="range" id="blobMinSize" min="1" max="500" value="80" class="slider">
                             <span id="blobMinSizeDisplay" class="slider-value">80 px</span>
                         </div>
                         <div class="control-group">
-                            <label>Blob Count Limit:</label>
-                            <input type="range" id="blobCountLimit" min="1" max="100" value="1" class="slider">
-                            <span id="blobCountLimitDisplay" class="slider-value">1 blob</span>
+                            <label>Min Blob Count:</label>
+                            <input type="range" id="blobMinCount" min="1" max="100" value="1" class="slider">
+                            <span id="blobMinCountDisplay" class="slider-value">1 blob</span>
+                        </div>
+                        <div class="control-group">
+                            <label>Max Blob Count:</label>
+                            <input type="range" id="blobMaxCount" min="1" max="100" value="10" class="slider">
+                            <span id="blobMaxCountDisplay" class="slider-value">10 blobs</span>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 2. FILTERS SECTION -->
-            <div class="collapsible-section collapsed">
-                <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> <span class="section-number">2.</span> FILTERS
-                </h2>
-                <div class="section-content">
-                    <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="thresholdFilter" checked />
-                            Threshold
-                        </label>
-                        <input type="range" id="thresholdValue" min="0" max="255" value="128" class="slider">
-                        <span id="thresholdDisplay" class="slider-value">Value: 128</span>
-                    </div>
-                    <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="morphFilter" />
-                            Morphology (Dilate)
-                        </label>
-                    </div>
-                    <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="invertFilter" />
-                            Invert
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. ROI SHAPE SECTION -->
-            <div class="collapsible-section collapsed">
-                <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> <span class="section-number">3.</span> ROI SHAPE
-                </h2>
-                <div class="section-content">
+                    <!-- ROI SHAPE -->
+                    <hr class="section-divider">
+                    <h3 class="subsection-header">ROI Shape</h3>
                     <div class="control-group">
                         <label>
                             <input type="radio" name="roiShape" value="rect" checked />
@@ -100,21 +75,44 @@
                 </div>
             </div>
 
-            <!-- 4. ROI SIZE SLIDERS -->
+            <!-- 2. FILTERS SECTION -->
             <div class="collapsible-section collapsed">
                 <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> <span class="section-number">4.</span> ROI SIZE
+                    <span class="toggle-icon">▼</span> <span class="section-number">2.</span> FILTERS
                 </h2>
                 <div class="section-content">
-                    <div class="control-group">
-                        <label>Width:</label>
-                        <input type="range" id="roiWidth" min="60" max="600" value="220" class="slider">
-                        <span id="roiWidthDisplay" class="slider-value">220 px</span>
+                    <!-- THRESHOLD FILTER -->
+                    <div id="thresholdFilterSection" class="filter-section">
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="thresholdFilter" checked />
+                                Threshold
+                            </label>
+                        </div>
+                        <div id="thresholdControls" class="filter-controls">
+                            <input type="range" id="thresholdValue" min="0" max="255" value="128" class="slider">
+                            <span id="thresholdDisplay" class="slider-value">Value: 128</span>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label>Height:</label>
-                        <input type="range" id="roiHeight" min="60" max="600" value="160" class="slider">
-                        <span id="roiHeightDisplay" class="slider-value">160 px</span>
+
+                    <!-- MORPHOLOGY FILTER -->
+                    <div id="morphFilterSection" class="filter-section">
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="morphFilter" />
+                                Morphology (Dilate)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- INVERT FILTER -->
+                    <div id="invertFilterSection" class="filter-section">
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="invertFilter" />
+                                Invert
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
