@@ -1,4 +1,4 @@
-// POCKET AOI MVP - Final Version
+// POCKET AOI MVP - Final Production Version
 const AppState = {
     roi: { x: 0, y: 0, width: 220, height: 160, shape: 'rect' },
     selectedTool: 'presence',
@@ -46,7 +46,7 @@ const elements = {
 
 const ctx = elements.processedCanvas.getContext('2d', { willReadFrequently: true });
 
-// COLLAPSIBLE SECTIONS
+// COLLAPSIBLE SECTIONS - ALL COLLAPSED ON START
 function toggleSection(header) {
     header.classList.toggle('collapsed');
     const content = header.nextElementSibling;
@@ -210,7 +210,7 @@ function applyFilters(imageData) {
     return imageData;
 }
 
-// BLOB DETECTION - EXACT SHAPE VISUALIZATION
+// BLOB DETECTION
 function detectBlobs(imageData) {
     const data = imageData.data;
     const width = elements.processedCanvas.width;
@@ -358,6 +358,19 @@ function processFrames() {
         drawBlobsOnCanvas(result.blobs, result.passed);
     }
     
+    // Update canvas border color based on blob tool
+    if (AppState.selectedTool === 'blob') {
+        if (result.passed) {
+            elements.processedCanvas.classList.add('pass');
+            elements.processedCanvas.classList.remove('fail');
+        } else {
+            elements.processedCanvas.classList.add('fail');
+            elements.processedCanvas.classList.remove('pass');
+        }
+    } else {
+        elements.processedCanvas.classList.remove('pass', 'fail');
+    }
+    
     requestAnimationFrame(processFrames);
 }
 
@@ -385,7 +398,6 @@ function updateLiveResult(result) {
 function recordInspection() {
     const passed = AppState.lastResult.passed;
     
-    // Add to statistics
     if (passed) {
         AppState.stats.pass++;
         elements.inspectBtn.classList.add('pass');
@@ -398,7 +410,6 @@ function recordInspection() {
     
     updateStatsDisplay();
     
-    // Reset to neutral state after 3 seconds
     if (AppState.inspectTimeout) {
         clearTimeout(AppState.inspectTimeout);
     }

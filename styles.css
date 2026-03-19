@@ -70,6 +70,12 @@ body {
     color: #2f81f7;
 }
 
+.section-number {
+    color: #2f81f7;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
 .toggle-icon {
     display: inline-block;
     margin-right: 8px;
@@ -188,8 +194,8 @@ body {
 
 .btn-reset {
     width: 100%;
-    padding: 12px;
-    margin-top: 12px;
+    padding: 8px;
+    margin-top: 10px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -199,6 +205,7 @@ body {
     transition: 0.3s;
     background-color: #da3633;
     color: white;
+    font-size: 0.85rem;
 }
 
 .btn-reset:hover {
@@ -276,9 +283,17 @@ body {
     width: 100%;
     height: auto;
     background-color: #000;
-    border: 1px solid #30363d;
+    border: 3px solid #30363d;
     border-radius: 6px;
     display: block;
+}
+
+#processedCanvas.pass {
+    border-color: #00ff00;
+}
+
+#processedCanvas.fail {
+    border-color: #ff0000;
 }
 
 /* INSPECTION RESULT */

@@ -17,12 +17,12 @@
         <!-- LEFT SIDEBAR -->
         <aside class="sidebar left-sidebar">
             
-            <!-- TOOLS SECTION (COLLAPSIBLE) -->
-            <div class="collapsible-section">
+            <!-- 1. TOOLS SECTION -->
+            <div class="collapsible-section collapsed">
                 <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> TOOLS
+                    <span class="toggle-icon">▼</span> <span class="section-number">1.</span> TOOLS
                 </h2>
-                <div class="section-content" style="display: block;">
+                <div class="section-content">
                     <div class="control-group">
                         <label>Select Tool:</label>
                         <select id="toolSelector">
@@ -52,10 +52,10 @@
                 </div>
             </div>
 
-            <!-- FILTERS SECTION (COLLAPSIBLE) -->
-            <div class="collapsible-section">
+            <!-- 2. FILTERS SECTION -->
+            <div class="collapsible-section collapsed">
                 <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> FILTERS
+                    <span class="toggle-icon">▼</span> <span class="section-number">2.</span> FILTERS
                 </h2>
                 <div class="section-content">
                     <div class="control-group">
@@ -81,10 +81,10 @@
                 </div>
             </div>
 
-            <!-- ROI SHAPE SECTION (COLLAPSIBLE) -->
-            <div class="collapsible-section">
+            <!-- 3. ROI SHAPE SECTION -->
+            <div class="collapsible-section collapsed">
                 <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> ROI SHAPE
+                    <span class="toggle-icon">▼</span> <span class="section-number">3.</span> ROI SHAPE
                 </h2>
                 <div class="section-content">
                     <div class="control-group">
@@ -100,10 +100,10 @@
                 </div>
             </div>
 
-            <!-- ROI SIZE SLIDERS -->
-            <div class="collapsible-section">
+            <!-- 4. ROI SIZE SLIDERS -->
+            <div class="collapsible-section collapsed">
                 <h2 class="section-header" onclick="toggleSection(this)">
-                    <span class="toggle-icon">▼</span> ROI SIZE
+                    <span class="toggle-icon">▼</span> <span class="section-number">4.</span> ROI SIZE
                 </h2>
                 <div class="section-content">
                     <div class="control-group">
@@ -119,8 +119,6 @@
                 </div>
             </div>
 
-            <!-- RESET STATS BUTTON -->
-            <button id="resetStatsBtn" class="btn-reset">RESET STATS</button>
         </aside>
 
         <!-- CENTER VIEWPORT -->
@@ -143,7 +141,7 @@
 
             <h2>PROCESSED IMAGE</h2>
             <div class="canvas-container">
-                <canvas id="processedCanvas" width="300" height="225"></canvas>
+                <canvas id="processedCanvas" width="200" height="150"></canvas>
             </div>
 
             <h2>INSPECTION RESULT (LIVE)</h2>
@@ -180,6 +178,7 @@
                     <span>FPY%:</span>
                     <span id="statFpy" class="stat-value">0%</span>
                 </div>
+                <button id="resetStatsBtn" class="btn-reset">RESET</button>
             </div>
         </aside>
     </div>
